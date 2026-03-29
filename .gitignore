@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+
+# Local analysis outputs
+*_analysis/
+*_spectrogram.png
+*_visualization.png
+normalized.wav
+transcription.mid
+analysis.json

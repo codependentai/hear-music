@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hear-music"
+version = "0.1.0"
+description = "CLI utilities for turning audio into spectrograms, MIDI, and JSON."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "numpy>=2.0",
+  "scipy>=1.16",
+]
+
+[project.optional-dependencies]
+visualize = [
+  "librosa>=0.11",
+  "matplotlib>=3.10",
+]
+
+[project.scripts]
+hear-music = "hear_music.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
