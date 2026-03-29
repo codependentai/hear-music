@@ -41,7 +41,7 @@ That installer:
 
 ### GitHub Install
 
-After you publish the repo, the easiest Windows install will be:
+The easiest Windows install from GitHub is:
 
 ```powershell
 git clone https://github.com/codependentai/hear-music.git
