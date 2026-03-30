@@ -115,6 +115,12 @@ Inspect audio metadata:
 hear-music info .\input.mp3
 ```
 
+Diagnose installation and environment issues:
+
+```powershell
+hear-music doctor
+```
+
 Choose an output directory:
 
 ```powershell
@@ -142,7 +148,30 @@ The note extraction is intentionally simple. It works best for monophonic or lig
 - `spectrogram`: fast `ffmpeg` spectrogram only
 - `visualize`: waveform + mel spectrogram + chromagram PNG
 - `info`: return `ffprobe` metadata as JSON
+- `doctor`: inspect PATH, Python, ffmpeg, and optional dependency issues
 - `midi-json`: parse MIDI note events into JSON
+
+## Troubleshooting
+
+If `hear-music` is not recognized as a command:
+
+```powershell
+hear-music doctor
+```
+
+If the launcher still is not available in the current terminal, open a new terminal and try again.
+
+As a fallback, you can invoke the installed module directly:
+
+```powershell
+python -m hear_music --help
+```
+
+Common causes:
+
+- the terminal was opened before install and has stale `PATH`
+- multiple Python installs are present and the package was installed into a different interpreter
+- `ffmpeg` is missing from `PATH`
 
 ## Publishing Notes
 

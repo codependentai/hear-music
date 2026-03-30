@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -46,6 +48,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     info_parser.add_argument("input", help="Input audio path")
     info_parser.add_argument("--out", help="Optional JSON output path")
+
+    doctor_parser = subparsers.add_parser(
+        "doctor",
+        help="Inspect the local environment for launcher, Python, ffmpeg, and optional dependency issues.",
+    )
+    doctor_parser.add_argument("--out", help="Optional JSON output path")
 
     midi_parser = subparsers.add_parser(
         "midi-json",
@@ -125,6 +133,41 @@ def cmd_info(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_doctor(args: argparse.Namespace) -> int:
+    checks = {
+        "python_executable": sys.executable,
+        "hear_music_module": bool(importlib.util.find_spec("hear_music")),
+        "hear_music_command": shutil.which("hear-music"),
+        "ffmpeg": shutil.which("ffmpeg"),
+        "ffprobe": shutil.which("ffprobe"),
+        "librosa": bool(importlib.util.find_spec("librosa")),
+        "matplotlib": bool(importlib.util.find_spec("matplotlib")),
+    }
+
+    warnings: list[str] = []
+    if not checks["hear_music_command"]:
+        warnings.append("The hear-music launcher is not on PATH. Open a new terminal or reinstall with install.cmd.")
+    if not checks["ffmpeg"] or not checks["ffprobe"]:
+        warnings.append("ffmpeg/ffprobe were not found on PATH. Install ffmpeg before using audio commands.")
+    if not checks["librosa"] or not checks["matplotlib"]:
+        warnings.append("Optional visualize dependencies are missing. Install with: python -m pip install -e .[visualize]")
+
+    payload = {
+        "ok": len(warnings) == 0,
+        "checks": checks,
+        "warnings": warnings,
+        "fallback": {
+            "module_invocation": f'"{sys.executable}" -m hear_music --help',
+        },
+    }
+    rendered = json.dumps(payload, indent=2)
+    if args.out:
+        out_path = Path(args.out).expanduser().resolve()
+        out_path.write_text(rendered, encoding="utf-8")
+    print(rendered)
+    return 0
+
+
 def cmd_midi_json(args: argparse.Namespace) -> int:
     input_path = Path(args.input).expanduser().resolve()
     if not input_path.exists():
@@ -153,6 +196,8 @@ def main() -> int:
         return cmd_visualize(args)
     if args.command == "info":
         return cmd_info(args)
+    if args.command == "doctor":
+        return cmd_doctor(args)
     if args.command == "midi-json":
         return cmd_midi_json(args)
 
