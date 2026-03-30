@@ -12,6 +12,8 @@
 
 It is intentionally lightweight and built around `ffmpeg`, `numpy`, and `scipy` so it can run locally before being wrapped in Modal or another service.
 
+Licensed under Apache 2.0. See [LICENSE](./LICENSE).
+
 ## Install
 
 After install, the goal is simple: you can open a new terminal and run:
