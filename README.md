@@ -12,7 +12,7 @@
 
 It is intentionally lightweight and built around `ffmpeg`, `numpy`, and `scipy` so it can run locally before being wrapped in Modal or another service.
 
-Licensed under Apache 2.0. See [LICENSE](./LICENSE).
+Source-available — free for personal and educational use, commercial use requires a license. See [LICENSE](./LICENSE).
 
 ## Install
 
