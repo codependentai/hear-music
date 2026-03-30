@@ -151,6 +151,10 @@ The note extraction is intentionally simple. It works best for monophonic or lig
 - `doctor`: inspect PATH, Python, ffmpeg, and optional dependency issues
 - `midi-json`: parse MIDI note events into JSON
 
+## Codex Skill
+
+This repo also includes a Codex skill at `skills/hear-music/` so agentic workflows can discover and use the tool with a purpose-built workflow instead of treating it like an unknown CLI.
+
 ## Troubleshooting
 
 If `hear-music` is not recognized as a command:

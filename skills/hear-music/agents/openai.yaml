@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hear Music"
+  short_description: "Analyze audio with hear-music CLI"
+  default_prompt: "Use $hear-music to inspect an audio file with the hear-music CLI and return the most useful artifacts."
