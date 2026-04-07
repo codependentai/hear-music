@@ -1,16 +1,21 @@
 # hear-music
 
-`hear-music` is a local CLI that lets an agent turn an audio file into:
+`hear-music` is a local CLI that lets an agent *hear* an audio file. It produces machine-readable artifacts an LLM can reason about:
 
-- a normalized WAV
+- audio metadata from `ffprobe`
 - a spectrogram image
 - a richer waveform + mel + chroma visualization
+- onset times, estimated tempo, and estimated key in JSON
+- a normalized WAV
 - a rough note transcription in JSON
-- a simple MIDI file
+- a simple MIDI file (using the estimated tempo)
 - a JSON parser for `.mid` files
-- audio metadata from `ffprobe`
 
-It is intentionally lightweight and built around `ffmpeg`, `numpy`, and `scipy` so it can run locally before being wrapped in Modal or another service.
+It is intentionally lightweight and built around `ffmpeg`, `numpy`, and `scipy` so it can run locally before being wrapped in Modal or another service. Optional `librosa` extras unlock a richer enrichment block in `analyze`.
+
+> **What it does well:** spectrograms, visualizations, ffprobe metadata, onset detection, tempo estimation, and key estimation on most material.
+>
+> **What it does roughly:** note-level MIDI transcription. The pitch tracker is an autocorrelation-based monophonic estimator — treat the MIDI output as a "first pass hearing" rather than high-accuracy transcription. It works well on solo voice, whistled melodies, and lightly layered material; it will struggle with dense produced tracks.
 
 Source-available — free for personal and educational use, commercial use requires a license. See [LICENSE](./LICENSE).
 
@@ -135,21 +140,50 @@ hear-music analyze .\input.mp3 --out-dir .\analysis
 
 - `normalized.wav`
 - `spectrogram.png`
-- `transcription.mid`
+- `transcription.mid` (uses the estimated tempo, not a hard-coded 120 BPM)
 - `analysis.json`
 
 `visualize` writes:
 
 - `visualization.png`
 
-The note extraction is intentionally simple. It works best for monophonic or lightly layered material and should be treated as a first-pass "hearing" layer rather than high-accuracy music transcription.
+### `analysis.json` fields
+
+```jsonc
+{
+  "source": "...",
+  "duration": 12.34,
+  "sample_rate": 22050,
+  "tempo_bpm": 128.5,            // estimated via onset envelope autocorrelation
+  "tempo_estimated": true,       // false ⇒ fell back to default 120
+  "key": {                       // Krumhansl-Schmuckler estimate, may be null
+    "tonic": "D",
+    "mode": "minor",
+    "confidence": 0.74
+  },
+  "onset_count": 47,
+  "onset_times": [0.12, 0.51, 0.89, ...],
+  "chroma": [0.06, 0.04, ...],   // 12-bin pitch class energy distribution
+  "note_count": 21,
+  "notes": [ /* NoteEvent records */ ],
+  "files": { "normalized_wav": "...", "spectrogram": "...", "midi": "..." },
+  "librosa": {                   // present only if librosa is installed
+    "librosa_tempo_bpm": 128.0,
+    "beat_times": [...],
+    "spectral_centroid_mean_hz": 1843.2,
+    "key_librosa": { "tonic": "D", "mode": "minor", "confidence": 0.81 }
+  }
+}
+```
+
+The note extraction is intentionally simple. Onset-aware segmentation now splits repeated same-pitch notes, and the MIDI is written at the estimated tempo, but it should still be treated as a first-pass "hearing" layer rather than high-accuracy music transcription.
 
 ## Commands
 
-- `analyze`: full local pass that writes WAV, spectrogram, MIDI, and JSON
+- `info`: return `ffprobe` metadata as JSON — start here for a quick read on duration, codec, tags
+- `visualize`: waveform + mel spectrogram + chromagram PNG (most reliable for dense audio)
+- `analyze`: full local pass — WAV, spectrogram, MIDI, onsets, tempo, key, chroma, JSON
 - `spectrogram`: fast `ffmpeg` spectrogram only
-- `visualize`: waveform + mel spectrogram + chromagram PNG
-- `info`: return `ffprobe` metadata as JSON
 - `doctor`: inspect PATH, Python, ffmpeg, and optional dependency issues
 - `midi-json`: parse MIDI note events into JSON
 
@@ -178,6 +212,17 @@ Common causes:
 - the terminal was opened before install and has stale `PATH`
 - multiple Python installs are present and the package was installed into a different interpreter
 - `ffmpeg` is missing from `PATH`
+
+## Development
+
+Install with the dev extras and run the test suite:
+
+```powershell
+python -m pip install -e .[dev]
+python -m pytest
+```
+
+The test suite uses synthetic in-memory audio (sine waves, click tracks, chord triads) so it is fast, deterministic, and free of external sample files. It runs in well under a minute.
 
 ## Publishing Notes
 

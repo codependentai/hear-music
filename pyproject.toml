@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hear-music"
-version = "0.1.0"
-description = "CLI utilities for turning audio into spectrograms, MIDI, and JSON."
+version = "0.2.0"
+description = "CLI utilities for turning audio into spectrograms, MIDI, and JSON with onset, tempo, and key analysis."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -17,6 +17,9 @@ dependencies = [
 visualize = [
   "librosa>=0.11",
   "matplotlib>=3.10",
+]
+dev = [
+  "pytest>=8.0",
 ]
 
 [project.scripts]

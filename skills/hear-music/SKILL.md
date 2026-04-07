@@ -1,6 +1,6 @@
 ---
 name: hear-music
-description: Inspect and transform audio files with the hear-music CLI. Use when Codex needs to analyze music or audio into spectrograms, waveform/mel/chroma visualizations, MIDI, JSON note events, ffprobe metadata, or diagnose hear-music installation and PATH issues.
+description: Inspect and transform audio files with the hear-music CLI. Use when Codex needs to analyze music or audio into spectrograms, waveform/mel/chroma visualizations, MIDI, JSON note events with onset/tempo/key estimation, ffprobe metadata, or diagnose hear-music installation and PATH issues.
 ---
 
 # Hear Music
@@ -39,13 +39,25 @@ python -m hear_music --help
 ## Output Selection
 
 - Use `info` first when the user wants a quick read on duration, streams, embedded cover art, tags, or bitrate.
-- Use `visualize` when the user wants AI-readable images of song structure or timbral changes.
-- Use `analyze` when the user wants structured note events, a MIDI approximation, and a spectrogram bundle.
+- Use `visualize` when the user wants AI-readable images of song structure or timbral changes — most reliable on dense audio.
+- Use `analyze` when the user wants structured tempo, key, onsets, chroma, note events, a MIDI approximation, and a spectrogram bundle.
 - Use `spectrogram` when the user only needs a fast frequency-over-time image and not the heavier analysis.
+
+## What `analyze` returns
+
+`analysis.json` includes:
+
+- `tempo_bpm` and `tempo_estimated` — tempo estimated from the onset envelope; the generated MIDI uses this tempo
+- `key` — `{tonic, mode, confidence}` from a Krumhansl-Schmuckler match against the chroma vector, or `null`
+- `onset_count` and `onset_times` — adaptive-thresholded spectral flux peaks (seconds)
+- `chroma` — 12-bin pitch class energy distribution
+- `notes` — onset-aware note events (repeated same-pitch notes are split when an onset fires)
+- `librosa` block (only present when `librosa` is installed) — `librosa_tempo_bpm`, `beat_times`, `spectral_centroid_mean_hz`, refined `key_librosa`
 
 ## Caveats
 
-- Treat `analysis.json` and generated MIDI as approximate for full mixed songs. The transcription is most reliable on monophonic or lightly layered material.
-- Expect better results from `visualize` than from note extraction on dense produced tracks with vocals, drums, bass, and harmony combined.
+- Treat `notes`/MIDI as approximate. Onset-aware segmentation and tempo-aware MIDI help, but the autocorrelation pitch tracker is monophonic and best on solo voice / whistled melodies / lightly layered material.
+- `tempo_bpm`, `key`, and `onset_count` are reliable enough on most material to feed into downstream reasoning.
+- Expect better visual results from `visualize` than note extraction on dense produced tracks with vocals, drums, bass, and harmony combined.
 - Run `doctor` when an agent can only invoke the tool with `python -m`; the most common causes are stale `PATH`, multiple Python installs, or missing `ffmpeg`.
 - If working inside the repo before install, `hear-music.cmd` in the repo root is also a valid local entry point.
