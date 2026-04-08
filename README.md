@@ -223,9 +223,3 @@ python -m pytest
 ```
 
 The test suite uses synthetic in-memory audio (sine waves, click tracks, chord triads) so it is fast, deterministic, and free of external sample files. It runs in well under a minute.
-
-## Publishing Notes
-
-Before pushing to GitHub, I recommend adding:
-
-- one or two example screenshots in a `docs/` folder
