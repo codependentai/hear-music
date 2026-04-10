@@ -223,3 +223,9 @@ python -m pytest
 ```
 
 The test suite uses synthetic in-memory audio (sine waves, click tracks, chord triads) so it is fast, deterministic, and free of external sample files. It runs in well under a minute.
+
+## Support
+
+Built by [Codependent AI](https://codependentai.io).
+
+<a href="https://ko-fi.com/codependentai"><img src="https://img.shields.io/badge/Ko--fi-Support%20Us-ff5e5b?logo=ko-fi&logoColor=white" alt="Ko-fi" /></a>
