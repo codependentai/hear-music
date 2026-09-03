@@ -1,7 +1,9 @@
 # hear-music
 
-`hear-music` is a local CLI that lets an agent *hear* an audio file. It produces machine-readable artifacts an LLM can reason about:
+`hear-music` is a local CLI that lets an agent *hear* an audio file. It runs on-device and produces machine-readable artifacts an LLM can reason about:
 
+- timestamped environmental-sound labels from YAMNet / AudioSet
+- timestamped local speech recognition with faster-whisper
 - audio metadata from `ffprobe`
 - a spectrogram image
 - a richer waveform + mel + chroma visualization
@@ -11,7 +13,7 @@
 - a simple MIDI file (using the estimated tempo)
 - a JSON parser for `.mid` files
 
-It is intentionally lightweight and built around `ffmpeg`, `numpy`, and `scipy` so it can run locally before being wrapped in Modal or another service. Optional `librosa` extras unlock a richer enrichment block in `analyze`.
+The core is intentionally lightweight and built around `ffmpeg`, `numpy`, and `scipy`. The optional `perception` extra adds CPU-local environmental classification and speech recognition; no hosted transcription API is required. Optional `visualize` dependencies unlock a richer enrichment block in `analyze`.
 
 > **What it does well:** spectrograms, visualizations, ffprobe metadata, onset detection, tempo estimation, and key estimation on most material.
 >
@@ -68,6 +70,12 @@ With visualizer extras:
 pipx install "hear-music[visualize] @ git+https://github.com/codependentai/hear-music.git"
 ```
 
+With general sound perception and local speech recognition:
+
+```powershell
+pipx install "hear-music[perception] @ git+https://github.com/codependentai/hear-music.git"
+```
+
 If they use `pipx` for the first time, they may need:
 
 ```powershell
@@ -84,7 +92,32 @@ The richer `visualize` command also installs:
 - `librosa`
 - `matplotlib`
 
+The `classify`, `transcribe`, and `listen` commands require the `perception` extra:
+
+- `mediapipe` for local YAMNet environmental classification
+- `faster-whisper` for local CPU speech recognition
+
+The pinned YAMNet model is downloaded to the user cache on first use and verified by SHA-256 before installation. Whisper models are also downloaded and cached by `faster-whisper` on first use. Subsequent inference is local.
+
 ## Usage
+
+Hear environmental sound and speech together:
+
+```powershell
+hear-music listen .\recording.ogg --out-dir .\hearing
+```
+
+Classify environmental sounds without transcribing speech:
+
+```powershell
+hear-music classify .\recording.ogg --out .\environment.json
+```
+
+Transcribe speech locally on CPU:
+
+```powershell
+hear-music transcribe .\recording.ogg --model tiny --out .\speech.json
+```
 
 Analyze audio:
 
@@ -147,6 +180,14 @@ hear-music analyze .\input.mp3 --out-dir .\analysis
 
 - `visualization.png`
 
+`listen` writes:
+
+- `hearing.json` — combined local perception result
+- `environment.json` — timestamped YAMNet labels and strongest-label summary
+- `speech.json` — detected language, transcript, and timestamped segments (unless `--no-speech` is used)
+
+`classify` and `transcribe` print JSON to stdout and optionally write it with `--out`.
+
 ### `analysis.json` fields
 
 ```jsonc
@@ -180,6 +221,9 @@ The note extraction is intentionally simple. Onset-aware segmentation now splits
 
 ## Commands
 
+- `listen`: unified local hearing — environmental classification plus CPU speech recognition
+- `classify`: timestamped general environmental-sound classification with YAMNet
+- `transcribe`: timestamped local speech recognition with faster-whisper
 - `info`: return `ffprobe` metadata as JSON — start here for a quick read on duration, codec, tags
 - `visualize`: waveform + mel spectrogram + chromagram PNG (most reliable for dense audio)
 - `analyze`: full local pass — WAV, spectrogram, MIDI, onsets, tempo, key, chroma, JSON
@@ -215,10 +259,10 @@ Common causes:
 
 ## Development
 
-Install with the dev extras and run the test suite:
+Install with the dev and perception extras and run the test suite:
 
 ```powershell
-python -m pip install -e .[dev]
+python -m pip install -e .[dev,perception]
 python -m pytest
 ```
 

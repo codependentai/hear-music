@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hear-music"
-version = "0.2.0"
-description = "CLI utilities for turning audio into spectrograms, MIDI, and JSON with onset, tempo, and key analysis."
+version = "0.3.0"
+description = "Local CLI for perceiving music, speech, and environmental sound as machine-readable artifacts."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -17,6 +17,10 @@ dependencies = [
 visualize = [
   "librosa>=0.11",
   "matplotlib>=3.10",
+]
+perception = [
+  "faster-whisper>=1.1",
+  "mediapipe>=0.10.21",
 ]
 dev = [
   "pytest>=8.0",
@@ -30,3 +34,4 @@ package-dir = {"" = "."}
 
 [tool.setuptools.packages.find]
 where = ["."]
+include = ["hear_music*"]
