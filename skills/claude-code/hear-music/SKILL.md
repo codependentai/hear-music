@@ -79,13 +79,13 @@ The `analyze` command writes a JSON document with these fields you can reason ab
 If hear-music is not installed:
 
 ```bash
-pipx install "git+https://github.com/codependentai/hear-music.git"
+pipx install "git+https://github.com/nekyialabs/hear-music.git"
 ```
 
 With visualizer extras:
 
 ```bash
-pipx install "hear-music[visualize] @ git+https://github.com/codependentai/hear-music.git"
+pipx install "hear-music[visualize] @ git+https://github.com/nekyialabs/hear-music.git"
 ```
 
 Requires Python 3.11+ and `ffmpeg` on `PATH`.

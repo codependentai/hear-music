@@ -51,7 +51,7 @@ That installer:
 The easiest Windows install from GitHub is:
 
 ```powershell
-git clone https://github.com/codependentai/hear-music.git
+git clone https://github.com/nekyialabs/hear-music.git
 cd hear-music
 .\install.cmd
 ```
@@ -59,13 +59,13 @@ cd hear-music
 Or, if they want the cleanest command-line app install, use `pipx`:
 
 ```powershell
-pipx install "git+https://github.com/codependentai/hear-music.git"
+pipx install "git+https://github.com/nekyialabs/hear-music.git"
 ```
 
 With visualizer extras:
 
 ```powershell
-pipx install "hear-music[visualize] @ git+https://github.com/codependentai/hear-music.git"
+pipx install "hear-music[visualize] @ git+https://github.com/nekyialabs/hear-music.git"
 ```
 
 If they use `pipx` for the first time, they may need:
